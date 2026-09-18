@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galoppal – Einladung</title>
+<!--
+  Trainer invite-link fallback page.
+
+  Universal Links (iOS) / App Links (Android) mean: if the Galoppal app is
+  installed AND the two files in .well-known/ are correctly hosted and
+  verified, tapping https://galoppal.de/t/<code> opens the app DIRECTLY —
+  this page is never shown. This page only renders when:
+    - the app isn't installed yet, or
+    - the OS hasn't verified the domain yet (first few hours/days), or
+    - someone opens the link on a desktop browser.
+
+  TODO before going live:
+    1. Fill in SUPABASE_URL / SUPABASE_ANON_KEY below (same values as the
+       app's .env — Project Settings -> API in the Supabase dashboard).
+       The anon key is meant to be public; RLS (profiles_select_public_trainers
+       in supabase/schema.sql) limits it to trainer rows only.
+    2. Fill in the App Store / Play Store URLs once the app is published.
+    3. Host this file so that /t/<anything> serves it while keeping the
+       original URL path (a rewrite, not a redirect) — see
+       web_deploy/README.md for exact snippets per host.
+-->
+<style>
+  :root {
+    --ink: #2a2620;
+    --ink-faint: rgba(42,38,32,.55);
+    --surface: #f6f3ec;
+    --green: #3e5c4e;
+    --card: #ffffff;
+    --radius: 20px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 32px 26px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.08);
+    text-align: center;
+  }
+  .wordmark {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 22px;
+    color: var(--green);
+    letter-spacing: -.3px;
+    margin: 0 0 22px;
+  }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 26px;
+    line-height: 1.2;
+    margin: 0 0 10px;
+  }
+  p.sub {
+    font-size: 14px;
+    color: var(--ink-faint);
+    line-height: 1.55;
+    margin: 0 0 22px;
+  }
+  #trainerPreview {
+    display: none;
+    background: rgba(62,92,78,.08);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 22px;
+    font-size: 14px;
+  }
+  #trainerPreview strong { color: var(--green); }
+  .stores {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .store-btn {
+    display: block;
+    padding: 14px;
+    border-radius: 14px;
+    background: var(--ink);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14.5px;
+  }
+  .store-btn.secondary {
+    background: transparent;
+    border: 1px solid rgba(42,38,32,.18);
+    color: var(--ink);
+  }
+  .footnote {
+    margin-top: 20px;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <p class="wordmark">Galoppal</p>
+    <h1>Du wurdest eingeladen.</h1>
+    <p class="sub">
+      Um die Reitstunden deines Reitlehrers zu sehen und zu buchen,
+      installiere Galoppal — oder öffne die App, falls sie schon da ist.
+    </p>
+
+    <div id="trainerPreview"></div>
+
+    <div class="stores">
+      <!-- TODO: replace with the real App Store URL once published -->
+      <a class="store-btn" href="https://apps.apple.com/app/idXXXXXXXXX">
+        Im App Store öffnen
+      </a>
+      <!-- TODO: replace with the real Play Store URL once published -->
+      <a class="store-btn secondary" href="https://play.google.com/store/apps/details?id=de.trainalign.trainalign">
+        Bei Google Play öffnen
+      </a>
+    </div>
+
+    <p class="footnote">
+      Schon installiert? Dieser Link öffnet die App automatisch, sobald sie
+      auf deinem Gerät eingerichtet ist.
+    </p>
+  </div>
+
+  <script>
+    // TODO: fill in (same values as the app's .env).
+    const SUPABASE_URL = "https://YOUR-PROJECT-REF.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";
+
+    function inviteCodeFromPath() {
+      const parts = location.pathname.split("/").filter(Boolean);
+      const i = parts.indexOf("t");
+      return i !== -1 && parts[i + 1] ? decodeURIComponent(parts[i + 1]) : null;
+    }
+
+    async function showTrainerPreview() {
+      const code = inviteCodeFromPath();
+      if (!code || SUPABASE_URL.includes("YOUR-PROJECT-REF")) return;
+      try {
+        const url = `${SUPABASE_URL}/rest/v1/profiles`
+          + `?invite_code=eq.${encodeURIComponent(code)}`
+          + `&is_trainer=is.true&select=full_name,facility`;
+        const res = await fetch(url, {
+          headers: {
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+        });
+        if (!res.ok) return;
+        const rows = await res.json();
+        if (!rows.length) return;
+        const { full_name, facility } = rows[0];
+        const el = document.getElementById("trainerPreview");
+        el.style.display = "block";
+        el.innerHTML = `Einladung von <strong>${escapeHtml(full_name)}</strong>`
+          + (facility ? ` · ${escapeHtml(facility)}` : "");
+      } catch (e) {
+        // Silent — the generic copy above still makes sense without a preview.
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      }[c]));
+    }
+
+    showTrainerPreview();
+  </script>
+</body>
+</html>

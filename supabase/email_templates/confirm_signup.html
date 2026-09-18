@@ -1,0 +1,130 @@
+<!--
+  Galoppal – E-Mail-Vorlage "Confirm signup"
+  Einfügen in Supabase: Authentication → Emails → Confirm signup → Message (HTML)
+  Betreff-Vorschlag:  Bestätige deine Anmeldung bei Galoppal
+  Wichtig: {{ .ConfirmationURL }} muss erhalten bleiben – das ist der Anmeldelink.
+
+  Personalisierung nutzt das User-Metadata aus signUp():
+    {{ .Data.full_name }}  -> Name
+    {{ .Data.role }}       -> "trainer" oder "rider"
+-->
+<!DOCTYPE html>
+<html lang="de" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <title>Bestätige deine Anmeldung bei Galoppal</title>
+  <!--[if mso]>
+  <style>
+    * { font-family: Georgia, 'Times New Roman', serif !important; }
+    .sans * { font-family: Arial, sans-serif !important; }
+  </style>
+  <![endif]-->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+    body { margin:0; padding:0; width:100% !important; background:#E8E5D9; }
+    a { text-decoration:none; }
+    @media (max-width:620px){
+      .container { width:100% !important; }
+      .px { padding-left:24px !important; padding-right:24px !important; }
+      .hero-px { padding-left:24px !important; padding-right:24px !important; }
+      .h1 { font-size:27px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0; padding:0; background:#E8E5D9;">
+  <!-- Preheader -->
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:#E8E5D9; font-size:1px; line-height:1px;">
+    Nur noch ein Klick – bestätige deine E-Mail und leg mit Galoppal los.
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#E8E5D9;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+
+        <!-- Card -->
+        <table role="presentation" class="container" width="560" cellpadding="0" cellspacing="0" border="0"
+               style="width:560px; max-width:560px; background:#FAF8F3; border-radius:20px; overflow:hidden; box-shadow:0 8px 28px rgba(31,61,46,0.16);">
+
+          <!-- Hero mit Grün→Blau-Verlauf -->
+          <tr>
+            <td class="hero-px" bgcolor="#1F3D2E"
+                style="background:#1D3557; background:linear-gradient(to bottom,#1D3557 0%,#2C5545 50%,#1F3D2E 100%); padding:30px 44px 30px 44px; text-align:center;">
+              <span style="display:inline-block; padding:6px 14px; background:rgba(166,185,122,0.22); border-radius:999px; font-family:'Plus Jakarta Sans',Arial,sans-serif; font-size:11px; font-weight:600; letter-spacing:1.6px; text-transform:uppercase; color:#EAF0DE;">
+                &#9679;&nbsp; Galoppal
+              </span>
+              <div style="height:16px; line-height:16px; font-size:0;">&nbsp;</div>
+              <h1 class="h1" style="margin:0; font-family:'Playfair Display',Georgia,serif; font-size:32px; line-height:1.15; font-weight:600; letter-spacing:-0.5px; color:#FAF8F3;">
+                Willkommen bei&nbsp;Galoppal
+              </h1>
+            </td>
+          </tr>
+
+          <!-- Body copy -->
+          <tr>
+            <td class="px sans" style="padding:32px 44px 0 44px; text-align:center;">
+              <p style="margin:0; font-family:'Plus Jakarta Sans',Arial,sans-serif; font-size:15px; line-height:1.6; color:#3f4a43;">
+                {{ if .Data.full_name }}Hallo {{ .Data.full_name }},{{ else }}Hallo,{{ end }}
+                schön, dass du dabei bist! Bestätige einmal deine E-Mail-Adresse,
+                dann kannst du dich anmelden und direkt loslegen.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Rollen-Badge -->
+          <tr>
+            <td class="px" style="padding:20px 44px 0 44px; text-align:center;">
+              <span style="display:inline-block; padding:7px 16px; background:#EDF2F0; border-radius:999px; font-family:'Plus Jakarta Sans',Arial,sans-serif; font-size:12px; font-weight:600; color:#2b3a33;">
+                Registriert als
+                {{ if eq .Data.role "trainer" }}<span style="color:#1F3D2E;">Trainer:in</span>{{ else if eq .Data.role "rider" }}<span style="color:#4C6A80;">Schüler:in</span>{{ else }}Nutzer:in{{ end }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Button (bulletproof) -->
+          <tr>
+            <td class="px" style="padding:28px 44px 6px 44px; text-align:center;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+                <tr>
+                  <td align="center" bgcolor="#1F3D2E" style="border-radius:12px;">
+                    <a href="{{ .ConfirmationURL }}" target="_blank"
+                       style="display:inline-block; padding:15px 40px; font-family:'Plus Jakarta Sans',Arial,sans-serif; font-size:15px; font-weight:600; color:#FAF8F3; background:#1F3D2E; border-radius:12px;">
+                      E-Mail bestätigen
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td class="px" style="padding:30px 44px 0 44px;">
+              <div style="height:1px; background:rgba(31,61,46,0.12); line-height:1px; font-size:0;">&nbsp;</div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td class="px sans" style="padding:20px 44px 34px 44px; text-align:center;">
+              <p style="margin:0; font-family:'Plus Jakarta Sans',Arial,sans-serif; font-size:11.5px; line-height:1.6; color:#a0a094;">
+                Du hast dich nicht bei Galoppal angemeldet? Dann ignoriere diese
+                E-Mail einfach – es passiert nichts weiter.
+              </p>
+              <p style="margin:14px 0 0 0; font-family:'Plus Jakarta Sans',Arial,sans-serif; font-size:11.5px; color:#a0a094;">
+                Galoppal
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Card -->
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
